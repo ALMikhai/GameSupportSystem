@@ -8,7 +8,7 @@ namespace Server.Models
 	public class AppContext : IdentityDbContext<Account>
 	{
 		public DbSet<Player> Players { get; set; } = null!;
-		public DbSet<Chat> Chats { get; set; } = null!;
+		public DbSet<Message> Messages { get; set; } = null!;
 		public DbSet<PlayerToken> Tokens { get; set; } = null!;
 
 		public AppContext(DbContextOptions<AppContext> options) : base(options) {

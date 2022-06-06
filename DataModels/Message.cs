@@ -14,6 +14,7 @@ namespace DataModels
 		}
 
 		public int Id { get; set; }
+		public Guid ChatId { get; set; }
 		public SourceType Type { get; set; }
 		public string Name { get; set; }
 		public DateTime CreationDate { get; set; } = DateTime.Now;
