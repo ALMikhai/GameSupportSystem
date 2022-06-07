@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Chats";
+}
+@using DataModels
+@model IEnumerable<Message>
+
+<div class="row">
+    <div class="col-6">
+        <ul class="list-group">
+			@foreach(var message in Model) {
+				<li class="list-group-item">
+					@Html.ActionLink(message.Text, "Chat", new { chatId = message.ChatId })
+				</li>
+			}
+		</ul>
+    </div>
+</div>

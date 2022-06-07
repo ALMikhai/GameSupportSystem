@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "Operator side chat";
+}
+@using DataModels
+@model Tuple<Guid, IEnumerable<Message>>
+
+<h2>Chat</h2>
+<div class="container">
+    <input type="text" id="messageInput" />
+    <input type="button" id="sendButton" value="Send" />
+    <input type="hidden" id="displayname" />
+    <ul id="messagesList">
+		@foreach (var item in Model.Item2) {
+			<li>
+				@($"{item.Name}: {item.Text}")
+			</li>
+		}
+	</ul>
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+@section scripts {
+	<script>
+		"use strict";
+
+		var connection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").build();
+
+		document.getElementById("sendButton").disabled = true;
+
+		connection.on("ReceiveMessage-@Model.Item1.ToString()", function (name, message) {
+			var li = document.createElement("li");	
+			document.getElementById("messagesList").appendChild(li);
+			li.textContent = `${name}: ${message}`;
+		});
+
+		connection.start().then(function () {
+			document.getElementById("sendButton").disabled = false;
+		}).catch(function (err) {
+			return console.error(err.toString());
+		});
+
+		document.getElementById("sendButton").addEventListener("click", function (event) {
+			var message = document.getElementById("messageInput").value;
+			connection.invoke("SendToChatFromOperator", "@Model.Item1.ToString()", message).catch(function (err) {
+				return console.error(err.toString());
+			});
+			event.preventDefault();
+		});
+
+	</script>
+}
