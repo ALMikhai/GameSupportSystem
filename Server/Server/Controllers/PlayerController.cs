@@ -13,6 +13,7 @@ namespace Server.Controllers
 			this.context = context;
 		}
 
+		// https://localhost:7058/Player/Register?deviceId=123&nickname=123
 		public async Task<JsonResult> Register(string deviceId, string nickname) {
 			if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(nickname)) {
 				return Json(new RegistrationResponse() {
