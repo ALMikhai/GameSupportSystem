@@ -1,9 +1,11 @@
 ﻿using DataModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Services.Redis;
 
 namespace Server.Controllers
 {
+	[Authorize(Roles = "Operator, Observer")]
     public class ChatController : Controller
     {
 		private readonly Models.AppContext context;
@@ -21,11 +23,12 @@ namespace Server.Controllers
 
 		public IActionResult Chat(Guid chatId) {
 			var messages = context.Messages.Where(m => m.ChatId == chatId);
-			return base.View(new Tuple<Guid, IEnumerable<Message>>(chatId, messages));
-		}
-
-		public IActionResult PlayerChat() {
-			return View();
+			var chatModel = new Tuple<Guid, IEnumerable<Message>>(chatId, messages);
+			if (User.IsInRole("Observer")) {
+				return View("OnlyViewChat", chatModel);
+			} else {
+				return base.View(chatModel);
+			}
 		}
 
 		public IActionResult ChatHistory(Guid chatId) {

@@ -5,6 +5,7 @@ using Server.Models;
 
 namespace Server.Controllers
 {
+	[Authorize(Roles = "Operator")]
 	public class RoleController : Controller
 	{
 		private RoleManager<IdentityRole> roleManager;

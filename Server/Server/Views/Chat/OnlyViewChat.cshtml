@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Operator side chat";
+}
+@using DataModels
+@model Tuple<Guid, IEnumerable<Message>>
+
+<a asp-controller="Chat" asp-action="Index">Back to chat list</a>
+<h2>Chat</h2>
+<div class="container">
+    <input type="hidden" id="displayname" />
+    <ul id="messagesList">
+		@foreach (var item in Model.Item2) {
+			<li>
+				@($"{item.Name}: {item.Text}")
+			</li>
+		}
+	</ul>
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+@section scripts {
+	<script>
+		"use strict";
+
+		var connection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").build();
+
+		connection.on("ReceiveMessage-@Model.Item1.ToString()", function (messageJson) {
+			var li = document.createElement("li");
+            var messageObject = JSON.parse(messageJson);
+			document.getElementById("messagesList").appendChild(li);
+			li.textContent = `${messageObject.Name}: ${messageObject.Text}`;
+		});
+	</script>
+}

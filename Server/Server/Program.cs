@@ -20,6 +20,11 @@ builder.Services.AddIdentity<Server.Models.Operator.Account, IdentityRole>()
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
+builder.Services.ConfigureApplicationCookie(options => {
+	options.LoginPath = "/Operator/Login";
+	options.AccessDeniedPath = "/Home/AccessDenied";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
