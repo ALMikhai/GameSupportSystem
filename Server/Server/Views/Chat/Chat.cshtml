@@ -4,7 +4,9 @@
 @using DataModels
 @model Tuple<Guid, IEnumerable<Message>>
 
+<a asp-controller="Chat" asp-action="Index">Back to chat list</a>
 <h2>Chat</h2>
+<input type="button" id="markAsReadButton" value="Mark as read" />
 <div class="container">
     <input type="text" id="messageInput" />
     <input type="button" id="sendButton" value="Send" />
@@ -46,6 +48,12 @@
 			});
 			event.preventDefault();
 		});
+
+		document.getElementById("markAsReadButton").addEventListener("click", function(event) {
+			connection.invoke("MarkPlayerMessagesAsRead", "@Model.Item1.ToString()").catch(function (err) {
+				return console.error(err.toString());
+			});
+		})
 
 	</script>
 }

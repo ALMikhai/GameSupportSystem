@@ -2,14 +2,14 @@
     ViewData["Title"] = "Chats";
 }
 @using DataModels
-@model IEnumerable<Message>
+@model IEnumerable<Tuple<Message, int>>
 
 <div class="row">
     <div class="col-6">
         <ul class="list-group">
 			@foreach(var message in Model) {
 				<li class="list-group-item">
-					@Html.ActionLink(message.Text, "Chat", new { chatId = message.ChatId })
+					@Html.ActionLink($"Player - {message.Item1.Name} | {message.Item2} unread messages", "Chat", new { chatId = message.Item1.ChatId })
 				</li>
 			}
 		</ul>
