@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Server.Hubs;
+using Server.Services.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddDbContext<Server.Models.AppContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddStackExchangeRedisCache(options => {
+	options.Configuration = $"{builder.Configuration.GetValue<string>("RedisCache:Host")}:{builder.Configuration.GetValue<int>("RedisCache:Port")}";
+});
 
 builder.Services.AddIdentity<Server.Models.Operator.Account, IdentityRole>()
 	.AddEntityFrameworkStores<Server.Models.AppContext>();

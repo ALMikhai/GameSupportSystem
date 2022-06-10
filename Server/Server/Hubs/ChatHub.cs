@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Server.Services.Redis;
 using System.Text.Json;
 
 namespace Server.Hubs
@@ -10,10 +11,12 @@ namespace Server.Hubs
 	{
 		private readonly Models.AppContext context;
 		private readonly ILogger<ChatHub> logger;
+		private readonly IRedisCacheService redisCache;
 
-		public ChatHub(Models.AppContext context, ILogger<ChatHub> logger) {
+		public ChatHub(Models.AppContext context, ILogger<ChatHub> logger, IRedisCacheService redisCache) {
 			this.context = context;
 			this.logger = logger;
+			this.redisCache = redisCache;
 		}
 
 		public async Task SendToChatFromPlayer(Guid playerTokenId, string message) {
@@ -51,14 +54,16 @@ namespace Server.Hubs
 			};
 			context.Messages.Add(messageObject);
 			await context.SaveChangesAsync();
+			redisCache.Set<bool>($"{playerTokenId}-numUnreadMessagesCached", false);
 			await ReceiveMessage(playerTokenId, messageObject);
 		}
 
 		public async Task MarkPlayerMessagesAsRead(Guid chatId) {
 			await MarkMessagesAsRead(chatId, Message.SourceType.Player);
 		}
-
+		
 		public async Task MarkOperatorMessagesAsRead(Guid chatId) {
+			redisCache.Set<bool>($"{chatId}-numUnreadMessagesCached", false);
 			await MarkMessagesAsRead(chatId, Message.SourceType.Operator);
 		}
 
