@@ -103,6 +103,26 @@ public class HttpProvider : MonoBehaviour
         chatHub.Send("SendToChatFromPlayer", playerTokenId.Value.ToString(), message);
     }
 
+    public void MarkMessageAsRead()
+    {
+        if (!IsAuthorize()) { return; }
+        chatHub.Send("MarkOperatorMessagesAsRead", playerTokenId.Value.ToString());
+    }
+
+    public async Task<int> GetUnreadMessageCount()
+    {
+        if (!IsAuthorize()) { return 0; }
+        var request =
+            new HTTPRequest(
+                new Uri($"https://localhost:7058/Chat/NumOfUnreadOperatorMessages?chatId={playerTokenId.Value}"));
+        var response = await request.Send().GetHTTPResponseAsync();
+        if (response is null) {
+            Debug.LogError("Server is not available");
+            return 0;
+        }
+        return Convert.ToInt32(response.DataAsText);
+    }
+
     private string GetDeviceMacId() {
         var networkInterface = NetworkInterface.GetAllNetworkInterfaces()
             .FirstOrDefault(q => q.OperationalStatus == OperationalStatus.Up);

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ChatMenu : MonoBehaviour
 {
@@ -23,6 +25,18 @@ public class ChatMenu : MonoBehaviour
     public void OnSendMessageButtonClick()
     {
         HttpProvider.Instance.SendMessage(messageField.text);
+    }
+
+    public void OnBackButtonClick()
+    {
+        HttpProvider.Instance.UnsubscribeToReceiveMessages();
+        HttpProvider.Instance.OnMessageReceive -= PrintMessage;
+        SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+    }
+
+    public void OnMarkAsReadClick()
+    {
+        HttpProvider.Instance.MarkMessageAsRead();
     }
 
     private void PrintMessage(Message message)

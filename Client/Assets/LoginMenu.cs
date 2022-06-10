@@ -24,7 +24,7 @@ public class LoginMenu : MonoBehaviour
         if (response.Type == RegistrationResponse.ResponseType.Error) {
             errorText.text = response.ErrorMessage;
         } else if (response.Type == RegistrationResponse.ResponseType.Succes) {
-            SceneManager.LoadScene("ChatScene", LoadSceneMode.Additive);
+            SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
         }
     }
 
@@ -35,7 +35,7 @@ public class LoginMenu : MonoBehaviour
         if (response.Type == LoginResponse.ResponseType.Error) {
             errorText.text = response.ErrorMessage;
         } else if (response.Type == LoginResponse.ResponseType.Succes) {
-            SceneManager.LoadScene("ChatScene", LoadSceneMode.Additive);
+            SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
         }
     }
 }
