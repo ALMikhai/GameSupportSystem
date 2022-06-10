@@ -26,10 +26,11 @@
 
 		document.getElementById("sendButton").disabled = true;
 
-		connection.on("ReceiveMessage-@Model.Item1.ToString()", function (name, message) {
-			var li = document.createElement("li");	
+		connection.on("ReceiveMessage-@Model.Item1.ToString()", function (messageJson) {
+			var li = document.createElement("li");
+            var messageObject = JSON.parse(messageJson);
 			document.getElementById("messagesList").appendChild(li);
-			li.textContent = `${name}: ${message}`;
+			li.textContent = `${messageObject.Name}: ${messageObject.Text}`;
 		});
 
 		connection.start().then(function () {

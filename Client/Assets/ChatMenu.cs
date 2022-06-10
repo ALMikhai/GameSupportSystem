@@ -16,7 +16,7 @@ public class ChatMenu : MonoBehaviour
         HttpProvider.Instance.OnMessageReceive += PrintMessage;
         var chatHistory = await HttpProvider.Instance.GetChatHistory();
         foreach (var message in chatHistory) {
-            PrintMessage(message.Name, message.Text);
+            PrintMessage(message);
         }
     }
 
@@ -25,8 +25,8 @@ public class ChatMenu : MonoBehaviour
         HttpProvider.Instance.SendMessage(messageField.text);
     }
 
-    private void PrintMessage(string sourceName, string message)
+    private void PrintMessage(Message message)
     {
-        messages.text += $"\n{sourceName}: {message}";
+        messages.text += $"\n{message.Name}: {message.Text}";
     }
 }

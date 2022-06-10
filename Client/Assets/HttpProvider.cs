@@ -12,7 +12,7 @@ public class HttpProvider : MonoBehaviour
 {
     public static HttpProvider Instance { get; private set; }
 
-    public delegate void MessageReceiveDelegate(string sourceName, string message);
+    public delegate void MessageReceiveDelegate(Message message);
 
     public event MessageReceiveDelegate OnMessageReceive;
 
@@ -73,15 +73,15 @@ public class HttpProvider : MonoBehaviour
     {
         if (!IsAuthorize()) { return; }
         chatHub.On($"ReceiveMessage-{playerTokenId}",
-            (string sourceName, string message) => OnMessageReceive?.Invoke(sourceName, message));
+            (string messageJson) => OnMessageReceive?.Invoke(JsonConvert.DeserializeObject<Message>(messageJson)));
     }
-    
+
     public void UnsubscribeToReceiveMessages()
     {
         if (!IsAuthorize()) { return; }
         chatHub.Remove($"ReceiveMessage-{playerTokenId}");
     }
-    
+
     public async Task<Message[]> GetChatHistory()
     {
         if (!IsAuthorize()) { return Array.Empty<Message>(); }

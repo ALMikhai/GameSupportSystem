@@ -1,6 +1,7 @@
 ﻿using DataModels;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace Server.Hubs
@@ -23,14 +24,15 @@ namespace Server.Hubs
 			var token = await context.Tokens.FirstAsync(t => t.Id == playerTokenId);
 			var player = await context.Players.FirstAsync(p => p.DeviceId == token.PlayerDeviceId);
 			var nickname = player.Nickname;
-			context.Messages.Add(new Message() {
+			var messageObject = new Message() {
 				ChatId = playerTokenId,
 				Name = nickname,
 				Text = message,
 				Type = Message.SourceType.Player,
-			});
+			};
+			context.Messages.Add(messageObject);
 			await context.SaveChangesAsync();
-			await ReceiveMessage(playerTokenId, nickname, message);
+			await ReceiveMessage(playerTokenId, messageObject);
 		}
 
 		public async Task SendToChatFromOperator(Guid playerTokenId, string message) {
@@ -39,18 +41,19 @@ namespace Server.Hubs
 				return;
 			}
 			var name = "Operator";
-			context.Messages.Add(new Message() {
+			var messageObject = new Message() {
 				ChatId = playerTokenId,
 				Name = name,
 				Text = message,
 				Type = Message.SourceType.Operator,
-			});
+			};
+			context.Messages.Add(messageObject);
 			await context.SaveChangesAsync();
-			await ReceiveMessage(playerTokenId, name, message);
+			await ReceiveMessage(playerTokenId, messageObject);
 		}
 
-		private async Task ReceiveMessage(Guid playerTokenId, string sourceName, string message) {
-			await Clients.All.SendAsync($"ReceiveMessage-{playerTokenId}", sourceName, message);
+		private async Task ReceiveMessage(Guid playerTokenId, Message message) {
+			await Clients.All.SendAsync($"ReceiveMessage-{playerTokenId}", JsonConvert.SerializeObject(message));
 		}
 
 		private async Task SendError(Guid playerTokenId, string message) {
