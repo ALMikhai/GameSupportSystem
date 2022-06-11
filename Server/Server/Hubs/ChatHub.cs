@@ -7,18 +7,33 @@ using System.Text.Json;
 
 namespace Server.Hubs
 {
+	/// <summary>
+	/// Hub containing functionality for messaging between the player and the operator.
+	/// </summary>
 	public class ChatHub : Hub
 	{
 		private readonly Models.AppContext context;
 		private readonly ILogger<ChatHub> logger;
 		private readonly IRedisCacheService redisCache;
 
+		/// <summary>
+		/// Hub containing functionality for messaging between the player and the operator.
+		/// </summary>
+		/// <param name="context">Application database context.</param>
+		/// <param name="logger">Logger object.</param>
+		/// <param name="redisCache">Redis layer for caching.</param>
 		public ChatHub(Models.AppContext context, ILogger<ChatHub> logger, IRedisCacheService redisCache) {
 			this.context = context;
 			this.logger = logger;
 			this.redisCache = redisCache;
 		}
 
+		/// <summary>
+		/// Request to send messages from the player.
+		/// Saves the message to the database and sends this message to all users associated with this chat.
+		/// </summary>
+		/// <param name="playerTokenId">Player token.</param>
+		/// <param name="message">Text of message.</param>
 		public async Task SendToChatFromPlayer(Guid playerTokenId, string message) {
 			if (!context.Tokens.Any(t => t.Id == playerTokenId)) {
 				await SendError(playerTokenId, "This token is not valid, please re-login.");
@@ -39,6 +54,12 @@ namespace Server.Hubs
 			await ReceiveMessage(playerTokenId, messageObject);
 		}
 
+		/// <summary>
+		/// Request to send messages from the operator.
+		/// Saves the message to the database and sends this message to all users associated with this chat.
+		/// </summary>
+		/// <param name="playerTokenId">Player token.</param>
+		/// <param name="message">Text of message.</param>
 		public async Task SendToChatFromOperator(Guid playerTokenId, string message) {
 			if (!context.Tokens.Any(t => t.Id == playerTokenId)) {
 				logger.LogError($"Token is not valid {playerTokenId}");
@@ -58,10 +79,18 @@ namespace Server.Hubs
 			await ReceiveMessage(playerTokenId, messageObject);
 		}
 
+		/// <summary>
+		/// Marks all messages from the player as read.
+		/// </summary>
+		/// <param name="chatId">Chat id.</param>
 		public async Task MarkPlayerMessagesAsRead(Guid chatId) {
 			await MarkMessagesAsRead(chatId, Message.SourceType.Player);
 		}
-		
+
+		/// <summary>
+		/// Marks all messages from the operator as read.
+		/// </summary>
+		/// <param name="chatId">Chat id.</param>
 		public async Task MarkOperatorMessagesAsRead(Guid chatId) {
 			redisCache.Set<bool>($"{chatId}-numUnreadMessagesCached", false);
 			await MarkMessagesAsRead(chatId, Message.SourceType.Operator);

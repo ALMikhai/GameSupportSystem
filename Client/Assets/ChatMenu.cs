@@ -1,10 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
+using Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Chat menu.
+/// </summary>
 public class ChatMenu : MonoBehaviour
 {
     private TMP_InputField messageField;
@@ -22,11 +23,17 @@ public class ChatMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Send message.
+    /// </summary>
     public void OnSendMessageButtonClick()
     {
         HttpProvider.Instance.SendMessage(messageField.text);
     }
 
+    /// <summary>
+    /// Set active game scene.
+    /// </summary>
     public void OnBackButtonClick()
     {
         HttpProvider.Instance.UnsubscribeToReceiveMessages();
@@ -34,6 +41,9 @@ public class ChatMenu : MonoBehaviour
         SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
     }
 
+    /// <summary>
+    /// Send mark massage as read request.
+    /// </summary>
     public void OnMarkAsReadClick()
     {
         HttpProvider.Instance.MarkMessageAsRead();

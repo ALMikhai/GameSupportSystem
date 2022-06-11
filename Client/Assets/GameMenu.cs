@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Game menu.
+/// </summary>
 public class GameMenu : MonoBehaviour
 {
     private TMP_Text unreadMessageCountText;
@@ -18,6 +18,9 @@ public class GameMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Set active chat scene.
+    /// </summary>
     public void OnChatButtonClick()
     {
         SceneManager.LoadScene("ChatScene", LoadSceneMode.Single);

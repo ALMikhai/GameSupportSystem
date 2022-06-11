@@ -5,15 +5,25 @@ using System.Threading.Tasks;
 using BestHTTP;
 using BestHTTP.SignalRCore;
 using BestHTTP.SignalRCore.Encoders;
+using Models;
 using Newtonsoft.Json;
 using UnityEngine;
 
+/// <summary>
+/// Singleton for operations related to the player support system.
+/// </summary>
 public class HttpProvider : MonoBehaviour
 {
+    /// <summary>
+    /// Singleton instance.
+    /// </summary>
     public static HttpProvider Instance { get; private set; }
 
     public delegate void MessageReceiveDelegate(Message message);
 
+    /// <summary>
+    /// Even which is invoke when a message is received.
+    /// </summary>
     public event MessageReceiveDelegate OnMessageReceive;
 
     private Guid? playerTokenId;
@@ -31,6 +41,12 @@ public class HttpProvider : MonoBehaviour
         chatHub.StartConnect();
     }
 
+    /// <summary>
+    /// Register a player.
+    /// </summary>
+    /// <param name="nickname">Player nickname.</param>
+    /// <returns>If the registration was successful, return success RegistrationResponse with token,
+    /// else return error RegistrationResponse with error message.</returns>
     public async Task<RegistrationResponse> RegisterPlayer(string nickname)
     {
         var request =
@@ -44,12 +60,18 @@ public class HttpProvider : MonoBehaviour
             };
         }
         var registrationResponse = JsonConvert.DeserializeObject<RegistrationResponse>(response.DataAsText);
-        if (registrationResponse.Type == RegistrationResponse.ResponseType.Succes) {
+        if (registrationResponse.Type == RegistrationResponse.ResponseType.Success) {
             playerTokenId = registrationResponse.AccessToken;
         }
         return registrationResponse;
     }
 
+    /// <summary>
+    /// Login a player.
+    /// </summary>
+    /// <param name="nickname">Player nickname.</param>
+    /// <returns>If the login was successful, return success LoginResponse with token,
+    /// else return error LoginResponse with error message.</returns>
     public async Task<LoginResponse> LoginPlayer(string nickname)
     {
         var request =
@@ -69,6 +91,9 @@ public class HttpProvider : MonoBehaviour
         return loginResponse;
     }
 
+    /// <summary>
+    /// Subscribe to receive messages.
+    /// </summary>
     public void SubscribeToReceiveMessages()
     {
         if (!IsAuthorize()) { return; }
@@ -76,12 +101,19 @@ public class HttpProvider : MonoBehaviour
             (string messageJson) => OnMessageReceive?.Invoke(JsonConvert.DeserializeObject<Message>(messageJson)));
     }
 
+    /// <summary>
+    /// Unsubscribe from receiving messages.
+    /// </summary>
     public void UnsubscribeToReceiveMessages()
     {
         if (!IsAuthorize()) { return; }
         chatHub.Remove($"ReceiveMessage-{playerTokenId}");
     }
 
+    /// <summary>
+    /// Request for get past messages.
+    /// </summary>
+    /// <returns>List of messages sorted from oldest to newest.</returns>
     public async Task<Message[]> GetChatHistory()
     {
         if (!IsAuthorize()) { return Array.Empty<Message>(); }
@@ -97,18 +129,29 @@ public class HttpProvider : MonoBehaviour
         return messages;
     }
 
+    /// <summary>
+    /// Send message to support.
+    /// </summary>
+    /// <param name="message">Text of message.</param>
     public new void SendMessage(string message)
     {
         if (!IsAuthorize()) { return; }
         chatHub.Send("SendToChatFromPlayer", playerTokenId.Value.ToString(), message);
     }
 
+    /// <summary>
+    /// Request for mark support messages as read.
+    /// </summary>
     public void MarkMessageAsRead()
     {
         if (!IsAuthorize()) { return; }
         chatHub.Send("MarkOperatorMessagesAsRead", playerTokenId.Value.ToString());
     }
 
+    /// <summary>
+    /// Request for get the number of unread messages.
+    /// </summary>
+    /// <returns></returns>
     public async Task<int> GetUnreadMessageCount()
     {
         if (!IsAuthorize()) { return 0; }
@@ -142,46 +185,4 @@ public class HttpProvider : MonoBehaviour
         }
         return authorized;
     }
-}
-
-public class Message
-{
-    public enum SourceType {
-        Player,
-        Operator,
-    }
-
-    public int Id { get; set; }
-    public Guid ChatId { get; set; }
-    public SourceType Type { get; set; }
-    public string Name { get; set; }
-    public DateTime CreationDate { get; set; } = DateTime.Now;
-    public bool IsReaded { get; set; } = false;
-    public string Text { get; set; } = string.Empty;
-}
-
-public class RegistrationResponse
-{
-    public enum ResponseType
-    {
-        Error,
-        Succes,
-    }
-
-    public ResponseType Type { get; set; }
-    public string ErrorMessage { get; set; } = string.Empty;
-    public Guid AccessToken { get; set; }
-}
-
-public class LoginResponse
-{
-    public enum ResponseType
-    {
-        Error,
-        Succes,
-    }
-
-    public ResponseType Type { get; set; }
-    public string ErrorMessage { get; set; } = string.Empty;
-    public Guid AccessToken { get; set; }
 }

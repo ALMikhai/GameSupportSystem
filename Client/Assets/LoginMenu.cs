@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
+using Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
+/// <summary>
+/// Login menu.
+/// </summary>
 public class LoginMenu : MonoBehaviour
 {
     private TMP_InputField nicknameField;
@@ -17,17 +17,23 @@ public class LoginMenu : MonoBehaviour
         errorText = transform.Find("ErrorText").GetComponent<TMP_Text>();
     }
 
+    /// <summary>
+    /// Send registration request and set active game scene.
+    /// </summary>
     public async void OnRegisterButtonClick()
     {
         var nickname = nicknameField.text;
         var response = await HttpProvider.Instance.RegisterPlayer(nickname);
         if (response.Type == RegistrationResponse.ResponseType.Error) {
             errorText.text = response.ErrorMessage;
-        } else if (response.Type == RegistrationResponse.ResponseType.Succes) {
+        } else if (response.Type == RegistrationResponse.ResponseType.Success) {
             SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
         }
     }
 
+    /// <summary>
+    /// Send login request and set active game scene.
+    /// </summary>
     public async void OnLoginButtonClick()
     {
         var nickname = nicknameField.text;
