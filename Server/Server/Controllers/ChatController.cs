@@ -8,7 +8,6 @@ namespace Server.Controllers
 	/// <summary>
 	/// Controller that determines the functionality of working with chat.
 	/// </summary>
-	[Authorize(Roles = "Operator, Observer")]
     public class ChatController : Controller
     {
 		private readonly Models.AppContext context;
@@ -28,6 +27,7 @@ namespace Server.Controllers
 		/// Main page with list of chats.
 		/// </summary>
 		/// <returns>Index page.</returns>
+		[Authorize(Roles = "Operator, Observer")]
 		public IActionResult Index() {
 			var uniqueChats = context.Messages.AsEnumerable().DistinctBy(m => m.ChatId).ToList();
 			return View(uniqueChats.Select(c => new Tuple<Message, int>(c, NumOfUnreadMessages(c.ChatId, Message.SourceType.Player))));
@@ -38,6 +38,7 @@ namespace Server.Controllers
 		/// </summary>
 		/// <param name="chatId">Id of chat.</param>
 		/// <returns>Chat page.</returns>
+		[Authorize(Roles = "Operator, Observer")]
 		public IActionResult Chat(Guid chatId) {
 			var messages = context.Messages.Where(m => m.ChatId == chatId);
 			var chatModel = new Tuple<Guid, IEnumerable<Message>>(chatId, messages);
